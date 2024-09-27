@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
-import { db } from '../firebase'; // Assuming Firestore is initialized
-import { collection, addDoc } from 'firebase/firestore'; // Firestore functions
+import { db } from '../firebase';
+import { collection, addDoc } from 'firebase/firestore';
 
-const AddHotelForm: React.FC = () => {
+interface AddHotelFormProps {
+  onAddHotel: (newHotel: any) => void; // Callback to update the hotel list
+}
+
+const AddHotelForm: React.FC<AddHotelFormProps> = ({ onAddHotel }) => {
   const [name, setName] = useState('');
   const [city, setCity] = useState('');
   const [address, setAddress] = useState('');
@@ -16,13 +20,18 @@ const AddHotelForm: React.FC = () => {
     setSuccess(null);
 
     try {
-      // Add hotel details to Firestore
-      await addDoc(collection(db, 'hotels'), {
+      const newHotel = {
         name,
         city,
         address,
         description,
-      });
+      };
+
+      // Add hotel details to Firestore
+      const docRef = await addDoc(collection(db, 'hotels'), newHotel);
+
+      // Trigger callback to update the list with the newly added hotel
+      onAddHotel({ id: docRef.id, ...newHotel });
 
       // Clear form fields on success
       setName('');
