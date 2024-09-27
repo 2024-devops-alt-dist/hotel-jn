@@ -1,16 +1,15 @@
-// src/pages/Login.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
+import { useAuth } from '../context/AuthProvider';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const user = useAuth(); // Check user status
+  const  { currentUser } = useAuth(); // Destructure currentUser from the context
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,9 +23,11 @@ const Login: React.FC = () => {
   };
 
   // Redirect to /home if user is authenticated
-  if (user) {
-    navigate('/home');
-  }
+  useEffect(() => {
+    if (currentUser) {
+      navigate('/home');
+    }
+  }, [currentUser, navigate]); // Ensure redirection happens after rendering
 
   return (
     <div>

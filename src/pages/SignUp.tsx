@@ -1,16 +1,15 @@
-// src/pages/SignUp.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
+import { useAuth } from '../context/AuthProvider';
 
 const SignUp: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const user = useAuth(); // Check user status
+  const  { currentUser } = useAuth(); // Destructure currentUser from the context
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,10 +22,12 @@ const SignUp: React.FC = () => {
     }
   };
 
-  // Redirect to /home if user is authenticated
-  if (user) {
-    navigate('/home');
-  }
+  // Redirect to /home if currentUser is authenticated
+  useEffect(() => {
+    if (currentUser) {
+      navigate('/home');
+    }
+  }, [currentUser, navigate]); // Ensure this only runs when currentUser changes
 
   return (
     <div>
