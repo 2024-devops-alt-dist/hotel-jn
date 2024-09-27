@@ -7,6 +7,7 @@ interface AuthContextProps {
   currentUser: User | null;
   firstName?: string; // Optional first name
   lastName?: string;  // Optional last name
+  role?: string;      // Optional role (admin, customer, etc.)
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -29,7 +30,8 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [firstName, setFirstName] = useState<string | undefined>(undefined); // State for first name
-  const [lastName, setLastName] = useState<string | undefined>(undefined); // State for last name
+  const [lastName, setLastName] = useState<string | undefined>(undefined);   // State for last name
+  const [role, setRole] = useState<string | undefined>(undefined);           // State for role
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,6 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const userData = docSnap.data();
           setFirstName(userData.firstName); // Set first name
           setLastName(userData.lastName);   // Set last name
+          setRole(userData.role);           // Set user role (e.g., admin, customer)
         }
 
         setCurrentUser(user); // Set the Firebase auth user
@@ -50,6 +53,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setCurrentUser(null);
         setFirstName(undefined);
         setLastName(undefined);
+        setRole(undefined);
       }
 
       setLoading(false);
@@ -62,6 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     currentUser,
     firstName, // Provide first name in context
     lastName,  // Provide last name in context
+    role,      // Provide role in context
   };
 
   return (

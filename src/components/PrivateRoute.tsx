@@ -4,17 +4,23 @@ import { useAuth } from '../context/AuthProvider';
 
 interface PrivateRouteProps {
   children: JSX.Element;
+  requiredRole?: string; // Optional prop to specify required role (e.g., "admin")
 }
 
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-  const { currentUser } = useAuth(); // Get the current user from context
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, requiredRole }) => {
+  const { currentUser, role } = useAuth(); // Get the current user and role from context
 
   if (!currentUser) {
     // If the user is not authenticated, redirect to login page
     return <Navigate to="/login" />;
   }
 
-  // If authenticated, render the child component (i.e., the protected page)
+  if (requiredRole && role !== requiredRole) {
+    // If the user doesn't have the required role, redirect to a "Not Authorized" page or home
+    return <Navigate to="/not-authorized" />;
+  }
+
+  // If authenticated and has the correct role (if required), render the child component
   return children;
 };
 

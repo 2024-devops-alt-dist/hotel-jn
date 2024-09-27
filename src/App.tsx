@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
+import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
 import PrivateRoute from './components/PrivateRoute';
 
@@ -37,6 +38,14 @@ import { db } from './firebase'; // Import the Firestore instance
                   element={
                     <PrivateRoute>
                       <Home />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <PrivateRoute requiredRole="admin">
+                      <Dashboard />
                     </PrivateRoute>
                   }
                 />
