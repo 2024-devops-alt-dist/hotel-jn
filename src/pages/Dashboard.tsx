@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import AddHotelForm from '../components/AddHotelForm';
 import HotelList from '../components/HotelList';
-import { db } from '../firebase'; // Firestore initialization
-import { collection, getDocs } from 'firebase/firestore'; // Firestore functions to get hotel data
+import { db } from '../firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 const Dashboard: React.FC = () => {
-  const [hotels, setHotels] = useState<any[]>([]); // State to manage hotels
+  const [hotels, setHotels] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch initial list of hotels
   useEffect(() => {
     const fetchHotels = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'hotels')); // Fetch hotels from Firestore
+        const querySnapshot = await getDocs(collection(db, 'hotels'));
         const hotelList = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        setHotels(hotelList); // Set initial hotel list
+        setHotels(hotelList);
         setLoading(false);
       } catch (error) {
         console.error("Failed to fetch hotels:", error);
@@ -30,7 +30,12 @@ const Dashboard: React.FC = () => {
 
   // Function to add a new hotel to the list
   const handleAddHotel = (newHotel: any) => {
-    setHotels((prevHotels) => [...prevHotels, newHotel]); // Append new hotel to existing list
+    setHotels((prevHotels) => [...prevHotels, newHotel]);
+  };
+
+  // Function to delete a hotel from the list
+  const handleDeleteHotel = (hotelId: string) => {
+    setHotels((prevHotels) => prevHotels.filter((hotel) => hotel.id !== hotelId));
   };
 
   if (loading) {
@@ -41,7 +46,7 @@ const Dashboard: React.FC = () => {
     <div style={styles.container}>
       <h1>You're on the dashboard page</h1>
       <AddHotelForm onAddHotel={handleAddHotel} />
-      <HotelList hotels={hotels} />
+      <HotelList hotels={hotels} onDeleteHotel={handleDeleteHotel} /> {/* Pass the delete handler */}
     </div>
   );
 };

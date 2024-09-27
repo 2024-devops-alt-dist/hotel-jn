@@ -1,10 +1,22 @@
 import React from 'react';
+import { db } from '../firebase';
+import { doc, deleteDoc } from 'firebase/firestore'; // Firestore functions to delete data
 
 interface HotelListProps {
-  hotels: any[]; // The list of hotels
+  hotels: any[];
+  onDeleteHotel: (hotelId: string) => void; // Callback to update the hotel list after deletion
 }
 
-const HotelList: React.FC<HotelListProps> = ({ hotels }) => {
+const HotelList: React.FC<HotelListProps> = ({ hotels, onDeleteHotel }) => {
+  const handleDelete = async (hotelId: string) => {
+    try {
+      await deleteDoc(doc(db, 'hotels', hotelId)); // Delete hotel from Firestore
+      onDeleteHotel(hotelId); // Call the callback to update the state
+    } catch (error) {
+      console.error('Failed to delete hotel:', error);
+    }
+  };
+
   if (hotels.length === 0) {
     return <p>No hotels found.</p>;
   }
@@ -19,6 +31,9 @@ const HotelList: React.FC<HotelListProps> = ({ hotels }) => {
             <p><strong>City:</strong> {hotel.city}</p>
             <p><strong>Address:</strong> {hotel.address}</p>
             <p><strong>Description:</strong> {hotel.description}</p>
+            <button onClick={() => handleDelete(hotel.id)} style={styles.deleteButton}>
+              Delete
+            </button>
           </li>
         ))}
       </ul>
@@ -40,6 +55,15 @@ const styles = {
     border: '1px solid #ccc',
     borderRadius: '8px',
     backgroundColor: '#f9f9f9',
+  },
+  deleteButton: {
+    marginTop: '0.5rem',
+    padding: '0.5rem 1rem',
+    backgroundColor: '#ff4d4d',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
   },
 };
 
