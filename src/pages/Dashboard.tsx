@@ -1,9 +1,12 @@
 import React from 'react';
+import AddHotelForm from '../components/AddHotelForm'; // Import the form
+
 
 const Dashboard: React.FC = () => {
   return (
     <div style={styles.container}>
       <h1>You're on the dashboard page</h1>
+      <AddHotelForm /> {/* Add the form to the dashboard */}
     </div>
   );
 };
