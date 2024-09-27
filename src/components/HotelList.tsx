@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { db } from '../firebase';
 import { doc, deleteDoc } from 'firebase/firestore'; // Firestore functions to delete data
 
 interface HotelListProps {
   hotels: any[];
-  onDeleteHotel: (hotelId: string) => void; // Callback to update the hotel list after deletion
+  onDeleteHotel: (hotelId: string) => void;
+  onEditHotel: (hotel: any) => void; // Callback to trigger hotel edit
 }
 
-const HotelList: React.FC<HotelListProps> = ({ hotels, onDeleteHotel }) => {
+const HotelList: React.FC<HotelListProps> = ({ hotels, onDeleteHotel, onEditHotel }) => {
   const handleDelete = async (hotelId: string) => {
     try {
       await deleteDoc(doc(db, 'hotels', hotelId)); // Delete hotel from Firestore
@@ -16,10 +17,6 @@ const HotelList: React.FC<HotelListProps> = ({ hotels, onDeleteHotel }) => {
       console.error('Failed to delete hotel:', error);
     }
   };
-
-  if (hotels.length === 0) {
-    return <p>No hotels found.</p>;
-  }
 
   return (
     <div style={styles.container}>
@@ -31,6 +28,9 @@ const HotelList: React.FC<HotelListProps> = ({ hotels, onDeleteHotel }) => {
             <p><strong>City:</strong> {hotel.city}</p>
             <p><strong>Address:</strong> {hotel.address}</p>
             <p><strong>Description:</strong> {hotel.description}</p>
+            <button onClick={() => onEditHotel(hotel)} style={styles.editButton}>
+              Edit
+            </button>
             <button onClick={() => handleDelete(hotel.id)} style={styles.deleteButton}>
               Delete
             </button>
@@ -56,8 +56,16 @@ const styles = {
     borderRadius: '8px',
     backgroundColor: '#f9f9f9',
   },
+  editButton: {
+    marginRight: '1rem',
+    padding: '0.5rem 1rem',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+  },
   deleteButton: {
-    marginTop: '0.5rem',
     padding: '0.5rem 1rem',
     backgroundColor: '#ff4d4d',
     color: '#fff',
