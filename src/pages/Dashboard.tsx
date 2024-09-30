@@ -3,6 +3,7 @@ import AddHotelForm from '../components/AddHotelForm';
 import HotelList from '../components/HotelList';
 import MessageList from '../components/MessageList'; // Import the MessageList component
 import EditHotelForm from '../components/EditHotelForm'; // New EditHotelForm
+import AddManagerForm from '../components/AddManagerForm';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
@@ -70,6 +71,7 @@ const Dashboard: React.FC = () => {
         onEditHotel={setEditingHotel} // Pass the editing handler
       />
       <MessageList />
+      <AddManagerForm />
     </div>
   );
 };

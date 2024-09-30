@@ -52,6 +52,7 @@ const AddHotelForm: React.FC<AddHotelFormProps> = ({ onAddHotel }) => {
             city,
             address,
             description,
+            managerId: '',      // Assigning default empty managerId role
             imageUrl: downloadURL, // Save image URL to Firestore
           };
 
