@@ -32,8 +32,8 @@ const SignUp: React.FC = () => {
         role: 'customer',      // Assigning default "customer" role
       });
 
-      // Navigate to /home after successful sign-up
-      navigate('/home');
+      // Navigate to landing page after successful sign-up
+      navigate('/');
     } catch (error: any) {
       setError(error.message);
     } finally {
