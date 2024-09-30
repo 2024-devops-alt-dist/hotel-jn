@@ -1,23 +1,12 @@
-import React, { useState } from 'react';
-import { db } from '../firebase';
-import { doc, deleteDoc } from 'firebase/firestore'; // Firestore functions to delete data
+import React from 'react';
 
 interface HotelListProps {
   hotels: any[];
   onDeleteHotel: (hotelId: string) => void;
-  onEditHotel: (hotel: any) => void; // Callback to trigger hotel edit
+  onEditHotel: (hotel: any) => void;
 }
 
 const HotelList: React.FC<HotelListProps> = ({ hotels, onDeleteHotel, onEditHotel }) => {
-  const handleDelete = async (hotelId: string) => {
-    try {
-      await deleteDoc(doc(db, 'hotels', hotelId)); // Delete hotel from Firestore
-      onDeleteHotel(hotelId); // Call the callback to update the state
-    } catch (error) {
-      console.error('Failed to delete hotel:', error);
-    }
-  };
-
   return (
     <div style={styles.container}>
       <h2>List of Hotels</h2>
@@ -28,10 +17,13 @@ const HotelList: React.FC<HotelListProps> = ({ hotels, onDeleteHotel, onEditHote
             <p><strong>City:</strong> {hotel.city}</p>
             <p><strong>Address:</strong> {hotel.address}</p>
             <p><strong>Description:</strong> {hotel.description}</p>
+            {hotel.imageUrl && (
+              <img src={hotel.imageUrl} alt={hotel.name} style={styles.image} />
+            )}
             <button onClick={() => onEditHotel(hotel)} style={styles.editButton}>
               Edit
             </button>
-            <button onClick={() => handleDelete(hotel.id)} style={styles.deleteButton}>
+            <button onClick={() => onDeleteHotel(hotel.id)} style={styles.deleteButton}>
               Delete
             </button>
           </li>
@@ -55,6 +47,11 @@ const styles = {
     border: '1px solid #ccc',
     borderRadius: '8px',
     backgroundColor: '#f9f9f9',
+  },
+  image: {
+    width: '100%',
+    maxWidth: '400px',
+    borderRadius: '8px',
   },
   editButton: {
     marginRight: '1rem',

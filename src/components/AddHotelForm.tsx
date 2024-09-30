@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { db } from '../firebase';
+import { db, storage } from '../firebase'; // Import storage for Firebase Storage
 import { collection, addDoc } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'; // Firebase Storage functions
 
 interface AddHotelFormProps {
-  onAddHotel: (newHotel: any) => void; // Callback to update the hotel list
+  onAddHotel: (newHotel: any) => void;
 }
 
 const AddHotelForm: React.FC<AddHotelFormProps> = ({ onAddHotel }) => {
@@ -11,36 +12,66 @@ const AddHotelForm: React.FC<AddHotelFormProps> = ({ onAddHotel }) => {
   const [city, setCity] = useState('');
   const [address, setAddress] = useState('');
   const [description, setDescription] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null); // State for the image file
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false); // State for upload progress
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
 
+    if (!imageFile) {
+      setError('Please select an image file.');
+      return;
+    }
+
     try {
-      const newHotel = {
-        name,
-        city,
-        address,
-        description,
-      };
+      // Upload the image to Firebase Storage
+      setUploading(true);
+      const storageRef = ref(storage, `hotel_images/${imageFile.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, imageFile);
 
-      // Add hotel details to Firestore
-      const docRef = await addDoc(collection(db, 'hotels'), newHotel);
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          // Progress tracking (optional)
+        },
+        (error) => {
+          setError('Failed to upload image.');
+          setUploading(false);
+        },
+        async () => {
+          // On success, get the download URL
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
 
-      // Trigger callback to update the list with the newly added hotel
-      onAddHotel({ id: docRef.id, ...newHotel });
+          // Add hotel details along with the image URL to Firestore
+          const newHotel = {
+            name,
+            city,
+            address,
+            description,
+            imageUrl: downloadURL, // Save image URL to Firestore
+          };
 
-      // Clear form fields on success
-      setName('');
-      setCity('');
-      setAddress('');
-      setDescription('');
-      setSuccess('Hotel added successfully!');
+          const docRef = await addDoc(collection(db, 'hotels'), newHotel);
+
+          // Trigger callback to update the list
+          onAddHotel({ id: docRef.id, ...newHotel });
+
+          setName('');
+          setCity('');
+          setAddress('');
+          setDescription('');
+          setImageFile(null);
+          setSuccess('Hotel added successfully!');
+          setUploading(false);
+        }
+      );
     } catch (error: any) {
       setError('Failed to add hotel. Please try again.');
+      setUploading(false);
     }
   };
 
@@ -81,8 +112,15 @@ const AddHotelForm: React.FC<AddHotelFormProps> = ({ onAddHotel }) => {
           required
           style={styles.textarea}
         />
-        <button type="submit" style={styles.button}>
-          Add Hotel
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setImageFile(e.target.files ? e.target.files[0] : null)}
+          required
+          style={styles.input}
+        />
+        <button type="submit" style={styles.button} disabled={uploading}>
+          {uploading ? 'Uploading...' : 'Add Hotel'}
         </button>
       </form>
     </div>
