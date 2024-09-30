@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
+import ContactFormModal from './ContactFormModal'; // Import the modal component
 
 interface HotelCardProps {
   hotel: {
+    id: string;
     name: string;
     city: string;
     address: string;
@@ -11,6 +13,8 @@ interface HotelCardProps {
 }
 
 const HotelCard: React.FC<HotelCardProps> = ({ hotel }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+
   return (
     <div style={styles.card}>
       {hotel.imageUrl && (
@@ -21,7 +25,18 @@ const HotelCard: React.FC<HotelCardProps> = ({ hotel }) => {
         <p><strong>City:</strong> {hotel.city}</p>
         <p><strong>Address:</strong> {hotel.address}</p>
         <p>{hotel.description}</p>
+        <button onClick={() => setIsModalOpen(true)} style={styles.button}>
+          Contact Hotel
+        </button>
       </div>
+
+      {/* Render the contact form modal */}
+      {isModalOpen && (
+        <ContactFormModal
+          hotel={hotel}
+          onClose={() => setIsModalOpen(false)} // Close modal handler
+        />
+      )}
     </div>
   );
 };
@@ -42,6 +57,15 @@ const styles = {
   },
   info: {
     padding: '1rem',
+  },
+  button: {
+    marginTop: '1rem',
+    padding: '0.5rem 1rem',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
   },
 };
 
