@@ -4,6 +4,7 @@ import HotelList from '../components/HotelList';
 import MessageList from '../components/MessageList'; // Import the MessageList component
 import EditHotelForm from '../components/EditHotelForm'; // New EditHotelForm
 import AddManagerForm from '../components/AddManagerForm';
+import Navbar from '../components/Navbar';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
@@ -56,6 +57,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div style={styles.container}>
+      <Navbar />
       <h1>You're on the dashboard page</h1>
       {editingHotel ? (
         <EditHotelForm
