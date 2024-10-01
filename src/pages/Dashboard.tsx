@@ -5,6 +5,8 @@ import MessageList from '../components/MessageList'; // Import the MessageList c
 import EditHotelForm from '../components/EditHotelForm'; // New EditHotelForm
 import AddManagerForm from '../components/AddManagerForm';
 import Navbar from '../components/Navbar';
+import ManagerList from '../components/ManagerList';
+
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
@@ -74,6 +76,7 @@ const Dashboard: React.FC = () => {
       />
       <MessageList />
       <AddManagerForm />
+      <ManagerList />
     </div>
   );
 };
