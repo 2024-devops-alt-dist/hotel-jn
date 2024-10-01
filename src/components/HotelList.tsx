@@ -31,6 +31,9 @@ const HotelList: React.FC<HotelListProps> = ({ hotels, onDeleteHotel, onEditHote
             {hotel.imageUrl && (
               <img src={hotel.imageUrl} alt={hotel.name} style={styles.image} />
             )}
+            {hotel.managerLastName && (
+              <p><strong>Manager:</strong> {hotel.managerLastName}</p>
+            )}
             <button onClick={() => onEditHotel(hotel)} style={styles.editButton}>
               Edit
             </button>
