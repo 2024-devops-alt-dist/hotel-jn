@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebase'; // Firestore and Auth imports
 import { collection, getDocs, query, where, doc, deleteDoc } from 'firebase/firestore';
 import { deleteUser } from 'firebase/auth';
+import EditManagerModal from './EditManagerModal';
 
 const ManagerList: React.FC = () => {
   const [managers, setManagers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedManager, setSelectedManager] = useState<any | null>(null); // For editing
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fetch managers from Firestore
   useEffect(() => {
@@ -53,6 +56,24 @@ const ManagerList: React.FC = () => {
     }
   };
 
+  // Handle opening the modal to edit a manager
+  const handleEdit = (manager: any) => {
+    setSelectedManager(manager);
+    setIsModalOpen(true);
+  };
+
+  // Handle closing the modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedManager(null);
+  };
+
+  // Update the manager in the list after editing
+  const handleUpdateManager = (updatedManager: any) => {
+    setManagers(managers.map((manager) => (manager.id === updatedManager.id ? updatedManager : manager)));
+  };
+
+
   if (loading) {
     return <p>Loading managers...</p>;
   }
@@ -81,10 +102,16 @@ const ManagerList: React.FC = () => {
                 <td style={styles.td}>{manager.email}</td>
                 <td style={styles.td}>{manager.hotelName}</td>
                 <td style={styles.td}>
-                  <button
-                    onClick={() => handleDelete(manager.id, manager.uid)}
-                    style={styles.deleteButton}
-                  >
+                    <button
+                        onClick={() => handleEdit(manager)} 
+                        style={styles.editButton}
+                    >
+                        Edit
+                    </button>
+                    <button
+                        onClick={() => handleDelete(manager.id, manager.uid)}
+                        style={styles.deleteButton}
+                    >
                     Delete
                   </button>
                 </td>
@@ -92,6 +119,14 @@ const ManagerList: React.FC = () => {
             ))}
           </tbody>
         </table>
+      )}
+      {selectedManager && (
+        <EditManagerModal
+          manager={selectedManager}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onUpdate={handleUpdateManager}
+        />
       )}
     </div>
   );
@@ -136,6 +171,14 @@ const styles = {
   deleteButton: {
     padding: '0.5rem 1rem',
     backgroundColor: '#ff4d4d',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+  },
+  editButton: {
+    padding: '0.5rem 1rem',
+    backgroundColor: '#007bff',
     color: '#fff',
     border: 'none',
     borderRadius: '4px',
