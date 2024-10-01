@@ -1,4 +1,6 @@
 import React from 'react';
+import { db } from '../firebase';
+import { doc, deleteDoc } from 'firebase/firestore'; // Firestore functions to delete data
 
 interface HotelListProps {
   hotels: any[];
@@ -7,6 +9,15 @@ interface HotelListProps {
 }
 
 const HotelList: React.FC<HotelListProps> = ({ hotels, onDeleteHotel, onEditHotel }) => {
+  const handleDelete = async (hotelId: string) => {
+    try {
+      await deleteDoc(doc(db, 'hotels', hotelId)); // Delete hotel from Firestore
+      onDeleteHotel(hotelId); // Call the callback to update the state
+    } catch (error) {
+      console.error('Failed to delete hotel:', error);
+    }
+  };
+
   return (
     <div style={styles.container}>
       <h2>List of Hotels</h2>
@@ -23,7 +34,7 @@ const HotelList: React.FC<HotelListProps> = ({ hotels, onDeleteHotel, onEditHote
             <button onClick={() => onEditHotel(hotel)} style={styles.editButton}>
               Edit
             </button>
-            <button onClick={() => onDeleteHotel(hotel.id)} style={styles.deleteButton}>
+            <button onClick={() => handleDelete(hotel.id)} style={styles.deleteButton}>
               Delete
             </button>
           </li>
