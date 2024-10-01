@@ -1,13 +1,15 @@
 // src/App.tsx
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthProvider';
+
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
 import PrivateRoute from './components/PrivateRoute';
+import ManagerBoard from './pages/ManagerBoard';
 
-import { AuthProvider } from './context/AuthProvider';
 
   const App: React.FC = () => {
     return (
@@ -23,6 +25,14 @@ import { AuthProvider } from './context/AuthProvider';
               element={
                 <PrivateRoute requiredRole="admin">
                   <Dashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/managerboard"
+              element={
+                <PrivateRoute requiredRole="manager">
+                  <ManagerBoard />
                 </PrivateRoute>
               }
             />

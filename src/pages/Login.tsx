@@ -25,8 +25,11 @@ const Login: React.FC = () => {
   // Redirect based on role
   useEffect(() => {
     if (currentUser) {
+      console.log(currentUser, role)
       if (role === 'admin') {
         navigate('/dashboard'); // Redirect admin users to dashboard
+      } else if (role === 'manager') {
+        navigate('/managerboard'); // Redirect managers to managerboard
       } else if (role === 'customer') {
         navigate('/'); // Redirect customer users to landing page
       } else {
