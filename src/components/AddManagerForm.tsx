@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase'; // Firebase imports
-import { collection, getDocs, addDoc, updateDoc, query, where, doc } from 'firebase/firestore';
+import { collection, getDocs, setDoc, updateDoc, query, where, doc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 const AddManagerForm: React.FC = () => {
@@ -46,8 +46,7 @@ const AddManagerForm: React.FC = () => {
       const user = userCredential.user;
 
       // Store manager info in Firestore, including hotel name
-      await addDoc(collection(db, 'users'), {
-        uid: user.uid,
+      await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
         firstName,
         lastName,
