@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase'; // Firestore import
 import { collection, query, where, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import EditSuiteModal from './EditSuiteModal';
+
 
 interface SuitesListProps {
   hotelId: string | undefined; // hotelId passed from parent
@@ -9,6 +11,8 @@ interface SuitesListProps {
 const SuitesList: React.FC<SuitesListProps> = ({ hotelId }) => {
   const [suites, setSuites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSuite, setSelectedSuite] = useState<any | null>(null); // For editing
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchSuites = async () => {
@@ -54,6 +58,23 @@ const SuitesList: React.FC<SuitesListProps> = ({ hotelId }) => {
     }
   };
 
+  // Handle opening the update modal
+  const handleEdit = (suite: any) => {
+    setSelectedSuite(suite);
+    setIsUpdateModalOpen(true);
+  };
+
+  // Handle closing the update modal
+  const closeUpdateModal = () => {
+    setIsUpdateModalOpen(false);
+    setSelectedSuite(null);
+  };
+
+  // Handle updating the suite in the list
+  const handleUpdateSuite = (updatedSuite: any) => {
+    setSuites(suites.map((suite) => (suite.id === updatedSuite.id ? updatedSuite : suite)));
+  };
+
   return (
     <div style={styles.container}>
       <h2>Suites List</h2>
@@ -87,6 +108,9 @@ const SuitesList: React.FC<SuitesListProps> = ({ hotelId }) => {
               <td style={styles.td}>{suite.description}</td>
               <td style={styles.td}>{suite.price}€</td>
               <td style={styles.td}>
+                <button onClick={() => handleEdit(suite)} style={styles.editButton}>
+                  Edit
+                </button>
                 <button onClick={() => handleDelete(suite.id)} style={styles.deleteButton}>
                   Delete
                 </button>
@@ -95,6 +119,15 @@ const SuitesList: React.FC<SuitesListProps> = ({ hotelId }) => {
           ))}
         </tbody>
       </table>
+
+      {selectedSuite && (
+        <EditSuiteModal
+          isOpen={isUpdateModalOpen}
+          onClose={closeUpdateModal}
+          suite={selectedSuite}
+          onUpdate={handleUpdateSuite}
+        />
+      )}
     </div>
   );
 };
@@ -128,6 +161,15 @@ const styles = {
     objectFit: 'cover' as const,
     borderRadius: '8px',
     margin: '4px',
+  },
+  editButton: {
+    padding: '0.5rem 1rem',
+    backgroundColor: '#ffc107',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    marginRight: '0.5rem',
   },
   deleteButton: {
     padding: '0.5rem 1rem',
