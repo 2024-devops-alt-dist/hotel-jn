@@ -1,101 +1,6 @@
-// import React, { useState, useEffect } from 'react';
-// import { db } from '../firebase'; // Firestore import
-// import { collection, query, where, getDocs } from 'firebase/firestore';
-
-// interface SuitesListProps {
-//   hotelId: string| undefined; // hotelId passed from parent
-// }
-
-// const SuitesList: React.FC<SuitesListProps> = ({ hotelId }) => {
-//   const [suites, setSuites] = useState<any[]>([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchSuites = async () => {
-//       try {
-//         if (hotelId) {
-//           const suitesRef = collection(db, 'suites');
-//           const q = query(suitesRef, where('hotelId', '==', hotelId));
-//           const querySnapshot = await getDocs(q);
-//           const suitesList = querySnapshot.docs.map((doc) => ({
-//             id: doc.id,
-//             ...doc.data(),
-//           }));
-//           setSuites(suitesList);
-//         }
-//         setLoading(false);
-//       } catch (error) {
-//         console.error('Error fetching suites:', error);
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchSuites();
-//   }, [hotelId]);
-
-//   if (loading) {
-//     return <p>Loading suites...</p>;
-//   }
-
-//   if (!suites.length) {
-//     return <p>No suites found for this hotel.</p>;
-//   }
-
-//   return (
-//     <div style={styles.container}>
-//       <h2>Suites List</h2>
-//       <table style={styles.table}>
-//         <thead>
-//           <tr>
-//             <th style={styles.th}>Title</th>
-//             <th style={styles.th}>Description</th>
-//             <th style={styles.th}>Price</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {suites.map((suite) => (
-//             <tr key={suite.id}>
-//               <td style={styles.td}>{suite.title}</td>
-//               <td style={styles.td}>{suite.description}</td>
-//               <td style={styles.td}>{suite.price}€</td>
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-//     </div>
-//   );
-// };
-
-// const styles = {
-//   container: {
-//     padding: '2rem',
-//     backgroundColor: '#f9f9f9',
-//     borderRadius: '8px',
-//     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-//   },
-//   table: {
-//     width: '100%',
-//     borderCollapse: 'collapse' as const,
-//   },
-//   th: {
-//     padding: '16px',
-//     textAlign: 'left' as const,
-//     backgroundColor: '#007bff',
-//     color: '#fff',
-//     borderBottom: '2px solid #ddd',
-//   },
-//   td: {
-//     padding: '16px',
-//     textAlign: 'left' as const,
-//     borderBottom: '1px solid #ddd',
-//   },
-// };
-
-// export default SuitesList;
-
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase'; // Firestore import
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, deleteDoc } from 'firebase/firestore';
 
 interface SuitesListProps {
   hotelId: string | undefined; // hotelId passed from parent
@@ -136,6 +41,19 @@ const SuitesList: React.FC<SuitesListProps> = ({ hotelId }) => {
     return <p>No suites found for this hotel.</p>;
   }
 
+   // Handle deleting a suite
+   const handleDelete = async (suiteId: string) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this suite?');
+    if (!confirmDelete) return;
+
+    try {
+      await deleteDoc(doc(db, 'suites', suiteId));
+      setSuites(suites.filter((suite) => suite.id !== suiteId)); // Remove from UI
+    } catch (error) {
+      console.error('Error deleting suite:', error);
+    }
+  };
+
   return (
     <div style={styles.container}>
       <h2>Suites List</h2>
@@ -147,6 +65,7 @@ const SuitesList: React.FC<SuitesListProps> = ({ hotelId }) => {
             <th style={styles.th}>Additional Images</th>
             <th style={styles.th}>Description</th>
             <th style={styles.th}>Price</th>
+            <th style={styles.th}>Actions</th> {/* Add Actions column for delete button */}
           </tr>
         </thead>
         <tbody>
@@ -167,6 +86,11 @@ const SuitesList: React.FC<SuitesListProps> = ({ hotelId }) => {
               </td>
               <td style={styles.td}>{suite.description}</td>
               <td style={styles.td}>{suite.price}€</td>
+              <td style={styles.td}>
+                <button onClick={() => handleDelete(suite.id)} style={styles.deleteButton}>
+                  Delete
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -204,6 +128,14 @@ const styles = {
     objectFit: 'cover' as const,
     borderRadius: '8px',
     margin: '4px',
+  },
+  deleteButton: {
+    padding: '0.5rem 1rem',
+    backgroundColor: '#ff4d4d',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
   },
 };
 
