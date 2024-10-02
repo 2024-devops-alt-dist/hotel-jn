@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import SuiteFormModal from '../components/SuiteFormModal';
 import { useAuth } from '../context/AuthProvider'; // Assuming you're using AuthProvider
+import SuitesList from '../components/SuitesList';
 
 const Dashboard: React.FC = () => {
   const [isSuiteModalOpen, setIsSuiteModalOpen] = useState(false);
@@ -40,6 +41,7 @@ const Dashboard: React.FC = () => {
           hotelId={hotelId}
           hotelName={hotelName} // Passing hotel to modal
         />
+        <SuitesList hotelId={hotelId}/>
       </div>
     </div>
   );
