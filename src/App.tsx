@@ -9,6 +9,7 @@ import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
 import PrivateRoute from './components/PrivateRoute';
 import ManagerBoard from './pages/ManagerBoard';
+import HotelPage from './pages/HotelPage';
 
 
   const App: React.FC = () => {
@@ -17,6 +18,7 @@ import ManagerBoard from './pages/ManagerBoard';
         <Router>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/hotel/:hotelId/suites" element={<HotelPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             {/* Protect the home route with PrivateRoute */}

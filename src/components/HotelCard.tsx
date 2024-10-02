@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import ContactFormModal from './ContactFormModal'; // Import the modal component
 
 interface HotelCardProps {
@@ -28,6 +29,9 @@ const HotelCard: React.FC<HotelCardProps> = ({ hotel }) => {
         <button onClick={() => setIsModalOpen(true)} style={styles.button}>
           Contact Hotel
         </button>
+        <Link to={`/hotel/${hotel.id}/suites`} style={styles.link}>
+          View Suites
+        </Link>
       </div>
 
       {/* Render the contact form modal */}
@@ -66,6 +70,15 @@ const styles = {
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
+  },
+  link: {
+    marginTop: '1rem',
+    display: 'inline-block',
+    padding: '0.5rem 1rem',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    textDecoration: 'none',
+    borderRadius: '4px',
   },
 };
 
