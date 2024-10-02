@@ -1,12 +1,45 @@
-import React from 'react';
-import Navbar from '../components/Navbar'; // Assuming you have a Navbar component
+import React, { useState } from 'react';
+import Navbar from '../components/Navbar';
+import SuiteFormModal from '../components/SuiteFormModal';
+import { useAuth } from '../context/AuthProvider'; // Assuming you're using AuthProvider
 
-const ManagerBoard: React.FC = () => {
+const Dashboard: React.FC = () => {
+  const [isSuiteModalOpen, setIsSuiteModalOpen] = useState(false);
+  const { hotelId, hotelName } = useAuth(); // Access currentUser info from AuthProvider
+
+  const openSuiteModal = () => {
+    setIsSuiteModalOpen(true);
+  };
+
+  const closeSuiteModal = () => {
+    setIsSuiteModalOpen(false);
+  };
+
+  // You can check if currentUser is available and handle it accordingly
+  // if (!currentUser) {
+  //   return <p>Loading user info...</p>; // or handle redirection if user is not authenticated
+  // }
+
   return (
     <div style={styles.container}>
-      <Navbar /> {/* Optional: If you want a Navbar */}
-      <div style={styles.content}>
-        <h1>Hello!! You're on the manager dashboard</h1>
+      <Navbar />
+      {/* <div style={styles.content}> */}
+      <div >
+        <h1>Dashboard</h1>
+        <p>Manage your hotel and suites here.</p>
+
+        {/* Button to open the suite modal */}
+        <button onClick={openSuiteModal} style={styles.button}>
+          Add New Suite
+        </button>
+
+        {/* Pass currentUser info to SuiteFormModal */}
+        <SuiteFormModal
+          isOpen={isSuiteModalOpen}
+          onClose={closeSuiteModal}
+          hotelId={hotelId}
+          hotelName={hotelName} // Passing hotel to modal
+        />
       </div>
     </div>
   );
@@ -14,14 +47,23 @@ const ManagerBoard: React.FC = () => {
 
 const styles = {
   container: {
-    // padding: '2',
-    // backgroundColor: '#f9f9f9',
-    // minHeight: '100vh',
+    padding: '2rem',
+    backgroundColor: '#f9f9f9',
+    minHeight: '100vh',
   },
   content: {
-    // textAlign: 'center',
-    // marginTop: 2,
+    textAlign: 'center',
+    marginTop: '2rem',
+  },
+  button: {
+    padding: '0.5rem 1rem',
+    fontSize: '1rem',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
   },
 };
 
-export default ManagerBoard;
+export default Dashboard;
