@@ -86,7 +86,7 @@ const SuitesList: React.FC<SuitesListProps> = ({ hotelId }) => {
             <th style={styles.th}>Additional Images</th>
             <th style={styles.th}>Description</th>
             <th style={styles.th}>Price</th>
-            <th style={styles.th}>Actions</th> {/* Add Actions column for delete button */}
+            <th style={styles.th}>Actions</th>
           </tr>
         </thead>
         <tbody>
