@@ -1,20 +1,61 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { db } from '../firebase'; // Firestore import
-import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { useAuth } from '../context/AuthProvider'; // Assuming you have AuthProvider to get currentUser
+import DatePicker from 'react-datepicker'; // Import DatePicker
+import 'react-datepicker/dist/react-datepicker.css'; // Import date picker CSS
 
 const BookingForm: React.FC = () => {
   const { suiteId } = useParams<{ suiteId: string }>(); // Get suiteId from the URL
 
   const { currentUser } = useAuth(); // Assuming currentUser includes customerId
-  const [entryDate, setEntryDate] = useState('');
-  const [releaseDate, setReleaseDate] = useState('');
+  const [entryDate, setEntryDate] = useState<Date | null>(null);
+  const [releaseDate, setReleaseDate] = useState<Date | null>(null);
+  const [bookedDates, setBookedDates] = useState<Date[]>([]); // To store booked dates
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const today = new Date().toISOString().split('T')[0]; // Get today's date in yyyy-mm-dd format
+  const today = new Date(); // Get today's date
+
+  useEffect(() => {
+    // Fetch all bookings for the selected suite
+    const fetchBookedDates = async () => {
+      try {
+        const bookingsRef = collection(db, 'bookings');
+        const q = query(bookingsRef, where('suiteId', '==', suiteId));
+        const querySnapshot = await getDocs(q);
+        const dates: Date[] = [];
+
+        querySnapshot.forEach((doc) => {
+          const booking = doc.data();
+          const startDate = new Date(booking.entryDate);
+          const endDate = new Date(booking.releaseDate);
+          // Add each day between entryDate and releaseDate to bookedDates
+          for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 1)) {
+            dates.push(new Date(d));
+          }
+        });
+
+        setBookedDates(dates); // Set the booked dates
+      } catch (error) {
+        console.error('Error fetching booked dates:', error);
+      }
+    };
+
+    fetchBookedDates();
+}, [suiteId]);
+
+const isDateBooked = (date: Date) => {
+    //   console.log(bookedDates)
+    return bookedDates.some(
+      (bookedDate) =>
+        bookedDate.getDate() === date.getDate() &&
+        bookedDate.getMonth() === date.getMonth() &&
+        bookedDate.getFullYear() === date.getFullYear()
+    );
+  };
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,17 +63,13 @@ const BookingForm: React.FC = () => {
     setSuccess(null);
     setError(null);
 
-    // Validation: Ensure entryDate is not before today
-    if (entryDate < today) {
-      setError("Entry date cannot be before today.");
+    if (!entryDate || !releaseDate) {
+      setError('Both entry and release dates are required.');
       setLoading(false);
       return;
     }
 
-    // Validation: Ensure releaseDate is after entryDate by at least 1 day
-    const entry = new Date(entryDate);
-    const release = new Date(releaseDate);
-    const diffInTime = release.getTime() - entry.getTime();
+    const diffInTime = releaseDate.getTime() - entryDate.getTime();
     const diffInDays = diffInTime / (1000 * 3600 * 24);
 
     if (diffInDays < 1) {
@@ -42,18 +79,16 @@ const BookingForm: React.FC = () => {
     }
 
     try {
-      // Ensure customer and suite are valid
       if (!currentUser?.uid || !suiteId) {
         throw new Error('Missing customer or suite information.');
       }
 
-      // Check for existing bookings that overlap with the selected dates
       const bookingsRef = collection(db, 'bookings');
       const q = query(
         bookingsRef,
         where('suiteId', '==', suiteId),
-        where('releaseDate', '>=', entryDate),
-        where('entryDate', '<=', releaseDate)
+        where('releaseDate', '>=', entryDate.toISOString().split('T')[0]),
+        where('entryDate', '<=', releaseDate.toISOString().split('T')[0])
       );
       const querySnapshot = await getDocs(q);
 
@@ -63,18 +98,17 @@ const BookingForm: React.FC = () => {
         return;
       }
 
-      // Add the booking to Firestore
       await addDoc(collection(db, 'bookings'), {
         suiteId,
         customerId: currentUser.uid,
-        entryDate,
-        releaseDate,
+        entryDate: entryDate.toISOString().split('T')[0],
+        releaseDate: releaseDate.toISOString().split('T')[0],
         createdAt: new Date(),
       });
 
       setSuccess('Booking successful!');
-      setEntryDate('');
-      setReleaseDate('');
+      setEntryDate(null);
+      setReleaseDate(null);
     } catch (error: any) {
       setError(error.message || 'Failed to book the suite.');
     } finally {
@@ -90,23 +124,28 @@ const BookingForm: React.FC = () => {
       <form onSubmit={handleBooking} style={styles.form}>
         <label>
           Entry Date:
-          <input
-            type="date"
-            value={entryDate}
-            onChange={(e) => setEntryDate(e.target.value)}
-            min={today} // Prevents selection of dates before today
-            required
-            style={styles.input}
-          />
+            <DatePicker
+                selected={entryDate}
+                onChange={(date) => setEntryDate(date)}
+                minDate={today}
+                excludeDates={bookedDates} // Disable booked dates
+                required
+                dateFormat="yyyy-MM-dd"
+                placeholderText="Select an entry date"
+                dayClassName={(date) => (isDateBooked(date) ? 'highlighted-date' : '')} // Add custom class for booked dates
+            />
         </label>
         <label>
           Release Date:
-          <input
-            type="date"
-            value={releaseDate}
-            onChange={(e) => setReleaseDate(e.target.value)}
+          <DatePicker
+            selected={releaseDate}
+            onChange={(date) => setReleaseDate(date)}
+            minDate={entryDate ? new Date(entryDate.getTime() + 24 * 60 * 60 * 1000) : today} // Ensure release date is after entry date
+            excludeDates={bookedDates}
             required
-            style={styles.input}
+            dateFormat="yyyy-MM-dd"
+            placeholderText="Select a release date"
+            dayClassName={(date) => (isDateBooked(date) ? 'highlighted-date' : '')} // Add custom class for booked dates
           />
         </label>
         <button type="submit" style={styles.button} disabled={loading}>
