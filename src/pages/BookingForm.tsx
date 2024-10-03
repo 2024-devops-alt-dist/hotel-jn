@@ -29,6 +29,18 @@ const BookingForm: React.FC = () => {
       return;
     }
 
+    // Validation: Ensure releaseDate is after entryDate by at least 1 day
+    const entry = new Date(entryDate);
+    const release = new Date(releaseDate);
+    const diffInTime = release.getTime() - entry.getTime();
+    const diffInDays = diffInTime / (1000 * 3600 * 24);
+
+    if (diffInDays < 1) {
+      setError("Release date must be at least one day after the entry date.");
+      setLoading(false);
+      return;
+    }
+
     try {
       // Ensure customer and suite are valid
       if (!currentUser?.uid || !suiteId) {
