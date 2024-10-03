@@ -14,11 +14,20 @@ const BookingForm: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const today = new Date().toISOString().split('T')[0]; // Get today's date in yyyy-mm-dd format
+
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setSuccess(null);
     setError(null);
+
+    // Validation: Ensure entryDate is not before today
+    if (entryDate < today) {
+      setError("Entry date cannot be before today.");
+      setLoading(false);
+      return;
+    }
 
     try {
       // Ensure customer and suite are valid
@@ -57,6 +66,7 @@ const BookingForm: React.FC = () => {
             type="date"
             value={entryDate}
             onChange={(e) => setEntryDate(e.target.value)}
+            min={today} // Prevents selection of dates before today
             required
             style={styles.input}
           />
