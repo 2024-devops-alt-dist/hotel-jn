@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { db } from '../firebase'; // Firestore import
 import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { useAuth } from '../context/AuthProvider'; // Assuming you have AuthProvider to get currentUser
@@ -16,6 +16,9 @@ const BookingForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const navigate = useNavigate();
+
 
   const today = new Date(); // Get today's date
 
@@ -109,6 +112,10 @@ const isDateBooked = (date: Date) => {
       setSuccess('Booking successful!');
       setEntryDate(null);
       setReleaseDate(null);
+      // Delay the navigation by 3 seconds (3000 milliseconds)
+    setTimeout(() => {
+        navigate('/customerpage');
+    }, 3000);
     } catch (error: any) {
       setError(error.message || 'Failed to book the suite.');
     } finally {
