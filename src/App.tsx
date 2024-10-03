@@ -11,6 +11,7 @@ import PrivateRoute from './components/PrivateRoute';
 import ManagerBoard from './pages/ManagerBoard';
 import HotelPage from './pages/HotelPage';
 import BookingForm from './pages/BookingForm';
+import CustomerPage from './pages/CustomerPage';
 
 
   const App: React.FC = () => {
@@ -23,6 +24,14 @@ import BookingForm from './pages/BookingForm';
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             {/* Protect the home route with PrivateRoute */}
+            <Route
+              path="/customerpage"
+              element={
+                <PrivateRoute requiredRole="customer">
+                  <CustomerPage  />
+                </PrivateRoute>
+              }
+            />
             <Route
               path="/suites/:suiteId"
               element={
