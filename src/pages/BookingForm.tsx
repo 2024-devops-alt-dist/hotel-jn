@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { db } from '../firebase'; // Firestore import
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { useAuth } from '../context/AuthProvider'; // Assuming you have AuthProvider to get currentUser
 
 const BookingForm: React.FC = () => {
@@ -33,6 +33,22 @@ const BookingForm: React.FC = () => {
       // Ensure customer and suite are valid
       if (!currentUser?.uid || !suiteId) {
         throw new Error('Missing customer or suite information.');
+      }
+
+      // Check for existing bookings that overlap with the selected dates
+      const bookingsRef = collection(db, 'bookings');
+      const q = query(
+        bookingsRef,
+        where('suiteId', '==', suiteId),
+        where('releaseDate', '>=', entryDate),
+        where('entryDate', '<=', releaseDate)
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        setError('This suite is already booked for the selected dates.');
+        setLoading(false);
+        return;
       }
 
       // Add the booking to Firestore
