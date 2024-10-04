@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase'; // Firestore import
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { useAuth } from '../context/AuthProvider'; // Assuming you have AuthProvider to get currentUser
 
 const ReservationsList: React.FC = () => {
@@ -33,6 +33,25 @@ const ReservationsList: React.FC = () => {
     }
   }, [currentUser]);
 
+  const canCancelReservation = (entryDate: string) => {
+    const entry = new Date(entryDate);
+    const today = new Date();
+    const diffInTime = entry.getTime() - today.getTime();
+    const diffInDays = diffInTime / (1000 * 3600 * 24);
+    return diffInDays >= 3; // Allow cancellation only if today is at least 3 days before the entry date
+  };
+
+  const handleDelete = async (reservationId: string) => {
+    try {
+      await deleteDoc(doc(db, 'bookings', reservationId));
+      setReservations((prevReservations) => 
+        prevReservations.filter((reservation) => reservation.id !== reservationId)
+      );
+    } catch (error) {
+      console.error('Error deleting reservation:', error);
+    }
+  };
+
   if (loading) {
     return <p>Loading reservations...</p>;
   }
@@ -54,6 +73,16 @@ const ReservationsList: React.FC = () => {
             <p>Suite ID: {reservation.suiteId}</p>
             <p>Entry Date: {reservation.entryDate}</p>
             <p>Release Date: {reservation.releaseDate}</p>
+            {canCancelReservation(reservation.entryDate) ? (
+              <button
+                onClick={() => handleDelete(reservation.id)}
+                style={styles.button}
+              >
+                Cancel Reservation
+              </button>
+            ) : (
+              <p style={{ color: 'red' }}>Cannot cancel within 3 days of entry date</p>
+            )}
           </li>
         ))}
       </ul>
@@ -77,6 +106,14 @@ const styles = {
   listItem: {
     padding: '1rem',
     borderBottom: '1px solid #ddd',
+  },
+  button: {
+    padding: '0.5rem 1rem',
+    backgroundColor: '#ff4d4d',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
   },
 };
 
