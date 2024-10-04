@@ -27,7 +27,7 @@ const Dashboard: React.FC = () => {
       {/* <div style={styles.content}> */}
       <div >
         <h1>Dashboard</h1>
-        <p>Manage your hotel and suites here.</p>
+        <p>Manage your hotel: {hotelName} and suites here.</p>
 
         {/* Button to open the suite modal */}
         <button onClick={openSuiteModal} style={styles.button}>

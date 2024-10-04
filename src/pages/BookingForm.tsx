@@ -5,6 +5,7 @@ import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { useAuth } from '../context/AuthProvider'; // Assuming you have AuthProvider to get currentUser
 import DatePicker from 'react-datepicker'; // Import DatePicker
 import 'react-datepicker/dist/react-datepicker.css'; // Import date picker CSS
+import Navbar from '../components/Navbar';
 
 const BookingForm: React.FC = () => {
   const { suiteId } = useParams<{ suiteId: string }>(); // Get suiteId from the URL
@@ -124,7 +125,8 @@ const isDateBooked = (date: Date) => {
   };
 
   return (
-    <div style={styles.container}>
+      <div style={styles.container}>
+        <Navbar />
       <h2>Book Your Stay</h2>
       {success && <p style={{ color: 'green' }}>{success}</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -162,6 +164,7 @@ const isDateBooked = (date: Date) => {
     </div>
   );
 };
+
 
 const styles = {
   container: {

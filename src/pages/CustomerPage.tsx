@@ -1,9 +1,11 @@
 import React from 'react';
 import ReservationsList from '../components/ReservationsList';
+import Navbar from '../components/Navbar';
 
 const CustomerPage: React.FC = () => {
   return (
     <div style={styles.container}>
+        <Navbar />
       <h1>Welcome, Customer</h1>
       <ReservationsList />
     </div>

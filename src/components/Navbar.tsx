@@ -3,9 +3,10 @@ import { useAuth } from '../context/AuthProvider'; // To get user data
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
-  const { currentUser, firstName, lastName } = useAuth(); // Get user data
+  const { currentUser, firstName, lastName, role } = useAuth(); // Get user data
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -20,7 +21,16 @@ const Navbar: React.FC = () => {
   return (
     <nav style={styles.nav}>
       <div style={styles.navContainer}>
-        <h1>Hôtel Clair de Lune</h1>
+        <Link to={`/`} style={styles.link}>
+          <h1>Hôtel Clair de Lune</h1>
+        </Link>
+        {role === "customer" && (
+          <div>
+            <Link to={`/customerpage`} style={styles.link}>
+              Reservations
+            </Link>
+          </div>
+        )}
         <div>
           {currentUser ? (
             <div>
@@ -73,6 +83,15 @@ const styles = {
     border: 'none',
     borderRadius: '4px',
     cursor: 'pointer',
+  },
+  link: {
+    marginTop: '1rem',
+    display: 'inline-block',
+    padding: '0.5rem 1rem',
+    backgroundColor: '#007bff',
+    color: '#fff',
+    textDecoration: 'none',
+    borderRadius: '4px',
   },
 };
 

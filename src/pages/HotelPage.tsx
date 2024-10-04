@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { db } from '../firebase'; // Firestore import
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import VisitorSuitesList from '../components/VisitorSuitesList';
+import Navbar from '../components/Navbar';
 
 const HotelPage: React.FC = () => {
   const { hotelId } = useParams<{ hotelId: string }>(); // Get hotelId from the URL
@@ -44,6 +45,7 @@ const HotelPage: React.FC = () => {
 
   return (
     <div style={styles.container}>
+      <Navbar />
       <div style={styles.hotelDetails}>
         <img src={hotel.imageUrl} alt={hotel.name} style={styles.hotelImage} />
         <h1>{hotel.name}</h1>
