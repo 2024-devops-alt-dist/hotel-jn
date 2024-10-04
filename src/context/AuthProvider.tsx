@@ -8,6 +8,10 @@ interface AuthContextProps {
   firstName?: string; // Optional first name
   lastName?: string;  // Optional last name
   role?: string;      // Optional role (admin, customer, etc.)
+  hotelId?: string; 
+  hotelName?: string;
+  // hotelId?: string | undefined; 
+  // hotelName?: string | undefined;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -32,6 +36,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [firstName, setFirstName] = useState<string | undefined>(undefined); // State for first name
   const [lastName, setLastName] = useState<string | undefined>(undefined);   // State for last name
   const [role, setRole] = useState<string | undefined>(undefined);           // State for role
+  const [hotelId, setHotelId] = useState<string | undefined>(undefined);           // State for hotelId
+  const [hotelName, setHotelName] = useState<string | undefined>(undefined);           // State for hotelName
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,6 +52,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setFirstName(userData.firstName); // Set first name
           setLastName(userData.lastName);   // Set last name
           setRole(userData.role);           // Set user role (e.g., admin, customer)
+          setHotelId(userData.hotelId);     // Set hotelId
+          setHotelName(userData.hotelName); // Set hotelName
         }
 
         setCurrentUser(user); // Set the Firebase auth user
@@ -54,6 +62,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setFirstName(undefined);
         setLastName(undefined);
         setRole(undefined);
+        setHotelId(undefined);
+        setHotelName(undefined);
       }
 
       setLoading(false);
@@ -67,10 +77,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     firstName, // Provide first name in context
     lastName,  // Provide last name in context
     role,      // Provide role in context
+    hotelId,
+    hotelName
   };
 
+  console.log(value);
+
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={value}> 
       {!loading && children}
     </AuthContext.Provider>
   );
